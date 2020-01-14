@@ -14,7 +14,7 @@ fi
 echo "${TFSEC_OUTPUT}"
 
 # Comment on the pull request if necessary.
-if [ "${INPUT_TFSEC_ACTIONS_COMMENT}" == "1" ] || [ "${INPUT_TFSEC_ACTIONS_COMMENT}" == "true" ]; then
+if [ $INPUT_TFSEC_ACTIONS_COMMENT == "1" ] || [ $INPUT_TFSEC_ACTIONS_COMMENT == "true" ]; then
   TFSEC_COMMENT=1
 else
   TFSEC_COMMENT=0
@@ -30,8 +30,8 @@ $(/go/bin/tfsec /github/workspace --no-colour)
 
 </details>"
   PAYLOAD=$(echo "${COMMENT}" | jq -R --slurp '{body: .}')
-  URL=$(jq -r .pull_request.comments_url "${GITHUB_EVENT_PATH}")
-  echo "${PAYLOAD}" | curl -s -S -H "Authorization: token ${GITHUB_TOKEN}" --header "Content-Type: application/json" --data @- "${URL}" > /dev/null
+  URL=$(cat $GITHUB_EVENT_PATH | jq -r .pull_request.comments_url)
+  echo "${PAYLOAD}" | curl -s -S -H "Authorization: token ${GITHUB_TOKEN}" --header "Content-Type: application/json" --data @- $URL > /dev/null
 fi
 
 exit $TFSEC_EXITCODE
